@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CircleDollarSign } from "lucide-react";
 import WheelContainer from "../../wheel-component/componnets/WheelContainer";
 import WheelControls from "../../wheel-component/componnets/WheelControls";
 import WheelCountdown from "../../wheel-component/componnets/WheelCountdown";
@@ -111,6 +112,13 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
   const segmentPrizes = useMemo(() => prizes.flatMap((p) => Array(Math.max(1, p.weight ?? 1)).fill(p)), [prizes]);
   const segments = useMemo(() => segmentPrizes.map((p) => p.label), [segmentPrizes]);
   const segmentIcons = useMemo(() => segmentPrizes.map((p) => p.icon), [segmentPrizes]);
+  // Always provide a single generic icon node centered in each wedge
+  const iconSize = Math.max(16, Math.floor((theme?.size ?? 200) * 0.12));
+  const segmentIconNodes = useMemo(
+    () => segments.map(() => <CircleDollarSign size={iconSize} strokeWidth={2} />),
+    [segments, iconSize],
+  );
+  const anyIcons = useMemo(() => segmentIconNodes.some(Boolean) || segmentIcons.some(Boolean), [segmentIconNodes, segmentIcons]);
   const segmentColors = useMemo(() => segmentPrizes.map((p, i) => p.color ?? (i % 2 === 0 ? "#6d28d9" : "#8b5cf6")), [segmentPrizes]);
 
   const triggerSpin = useCallback(() => {
@@ -186,12 +194,15 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
           segments={segments}
           segColors={segmentColors}
           segmentIcons={segmentIcons}
+          segmentIconNodes={segmentIconNodes}
           onFinished={handleFinished}
           buttonText={"SPIN"}
           size={theme?.size || 200}
           upDuration={theme?.spinUpMs ?? 200}
           downDuration={theme?.spinDownMs ?? 1100}
-          textVisible={segmentIcons.some(Boolean) ? false : true}
+          iconSizePx={iconSize}
+          textVisible={anyIcons ? false : true}
+          hideList={anyIcons}
         />
       </WheelContainer>
       <WheelControls
@@ -223,14 +234,16 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
                   segments={segments}
                   segColors={segmentColors}
                   segmentIcons={segmentIcons}
+                  segmentIconNodes={segmentIconNodes}
                   onFinished={handleFinished}
                   primaryColor={theme?.accentColor}
                   contrastColor={theme?.textColor}
                   size={(theme?.size ?? 220) + 40}
                   upDuration={theme?.spinUpMs ?? 200}
                   downDuration={theme?.spinDownMs ?? 1100}
-                  textVisible={segmentIcons.some(Boolean) ? false : true}
-                  hideList
+                  iconSizePx={iconSize}
+                  textVisible={anyIcons ? false : true}
+                  hideList={anyIcons}
                 />
                 {modalResult ? (
                   <div className="text-sm text-center mt-1">

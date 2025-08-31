@@ -7,6 +7,7 @@ type Props = {
   segColors?: string[];
   segmentIcons?: (string | undefined)[];
   segmentIconNodes?: (ReactNode | undefined)[]; // optional SVG/React icons (e.g., Lucide)
+  iconSizePx?: number; // optional size hint for centering icon nodes
   onFinished: (label: string) => void;
   primaryColor?: string;
   contrastColor?: string;
@@ -22,7 +23,7 @@ type Props = {
 export type SimpleWheelHandle = { spin: () => void };
 
 const SimpleWheel = forwardRef<SimpleWheelHandle, Props>(function SimpleWheel(
-  { segments, segColors, segmentIcons, segmentIconNodes, onFinished, buttonText = "SPIN", size = 200, upDuration = 150, downDuration = 500, hideList = false, textVisible = true }: Props,
+  { segments, segColors, segmentIcons, segmentIconNodes, iconSizePx, onFinished, buttonText = "SPIN", size = 200, upDuration = 150, downDuration = 500, hideList = false, textVisible = true }: Props,
   ref,
 ) {
   const spinning = useRef(false);
@@ -139,7 +140,7 @@ const SimpleWheel = forwardRef<SimpleWheelHandle, Props>(function SimpleWheel(
         </div>
       ) : null}
 
-      <div className="relative mx-auto pt-4" style={{ width: size, height: size }}>
+      <div className="relative mx-auto" style={{ width: size, height: size }}>
         {/* Pointer */}
         <div className="absolute left-1/2 -translate-x-1/2 -top-4" style={{ zIndex: 2 }} aria-hidden>
           <svg width="18" height="18" viewBox="0 0 18 18">
@@ -163,11 +164,13 @@ const SimpleWheel = forwardRef<SimpleWheelHandle, Props>(function SimpleWheel(
               const node = segmentIconNodes?.[i];
               const icon = segmentIcons?.[i];
               const labelFont = Math.max(9, r * 0.10);
-              const fitted = textVisible ? fitLabelToSlice(label, labelFont) : "";
+              const showText = textVisible && !node && !icon;
+              const fitted = showText ? fitLabelToSlice(label, labelFont) : "";
               return (
                 <g key={`lbl-${i}`}>
                   {node ? (
-                    <g transform={`translate(${x}, ${y - 6})`}>
+                    // Center the icon node by offsetting half of its size. Default to 24px if not provided.
+                    <g transform={`translate(${x - (iconSizePx ?? 24) / 2}, ${y - (iconSizePx ?? 24) / 2})`}>
                       {node}
                     </g>
                   ) : icon ? (
@@ -175,7 +178,7 @@ const SimpleWheel = forwardRef<SimpleWheelHandle, Props>(function SimpleWheel(
                       {icon}
                     </text>
                   ) : null}
-                  {textVisible && fitted ? (
+                  {showText && fitted ? (
                     <text x={x} y={y + 7} textAnchor="middle" dominantBaseline="central" fontSize={labelFont} fill="#111" style={{ paintOrder: "stroke" }}>
                       {fitted}
                     </text>
