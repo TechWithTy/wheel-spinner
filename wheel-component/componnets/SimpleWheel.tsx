@@ -191,15 +191,23 @@ const SimpleWheel = forwardRef<SimpleWheelHandle, Props>(function SimpleWheel(
           </svg>
         </div>
 
-        {/* Center button */}
+        {/* Center button (transparent overlay, keep a11y) */}
         <button
           type="button"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded bg-violet-600 text-white text-xs shadow"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full w-16 h-16 bg-transparent text-transparent focus:outline-none"
           onClick={handleSpin}
+          aria-label={buttonText}
           disabled={spinning.current || segments.length === 0}
         >
-          {buttonText}
+          <span className="sr-only">{buttonText}</span>
         </button>
+        {/* Visible label over center (no rect background) */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-[10px] font-semibold tracking-wide"
+          aria-hidden
+        >
+          {buttonText}
+        </div>
       </div>
     </div>
   );

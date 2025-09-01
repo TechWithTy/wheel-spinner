@@ -11,7 +11,7 @@ type Props = {
 
 const WheelControls: FC<Props> = ({ onSpin, onReset, disabled }) => (
   <div className="flex items-center gap-2">
-    <Button type="button" onClick={onSpin} disabled={!!disabled}>
+    <Button type="button" variant="ghost" className="shadow-none border-0" onClick={onSpin} disabled={!!disabled}>
       Spin Now
     </Button>
     {onReset ? (
