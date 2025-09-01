@@ -1,4 +1,4 @@
-export type Cadence = "daily" | "weekly" | "monthly";
+export type Cadence = "hourly" | "daily" | "weekly" | "monthly";
 
 export interface Prize {
   id: string;
