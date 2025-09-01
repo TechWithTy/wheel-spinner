@@ -121,6 +121,28 @@ const DemoWheel = () => {
     console.log("Wheel result:", result);
   }
 
+  function resetDemoSettings() {
+    // Clear persistence
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(LS_KEY);
+      } catch {}
+    }
+    // Reset toggles
+    setShowResultModal(true);
+    setShowWheelPopup(false);
+    setAutoSpin(false);
+    // Reset theme to Default preset
+    applyPreset("Default");
+    // Reset prizes
+    setPrizes([
+      { id: "p1", label: "10 Credits", weight: 2, color: "#6d28d9" },
+      { id: "p2", label: "Try Again", weight: 3, color: "#8b5cf6" },
+      { id: "p3", label: "25 Credits", weight: 1, color: "#d946ef" },
+      { id: "p4", label: "5 Credits", weight: 4, color: "#22c55e" },
+    ]);
+  }
+
   return (
     <div className="space-y-3">
       {/* Mode toggles */}
@@ -155,13 +177,22 @@ const DemoWheel = () => {
       <div className="space-y-2 rounded border p-3">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium">Prizes</h4>
-          <button type="button" onClick={addPrize} className="rounded bg-emerald-600 px-2 py-1 text-xs text-white hover:bg-emerald-700">
-            Add Prize
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={addPrize} className="rounded bg-emerald-600 px-2 py-1 text-xs text-white hover:bg-emerald-700">
+              Add Prize
+            </button>
+            <button
+              type="button"
+              onClick={resetDemoSettings}
+              className="rounded border border-border px-2 py-1 text-xs hover:bg-accent"
+            >
+              Reset Demo Settings
+            </button>
+          </div>
         </div>
         <div className="space-y-2">
           {prizes.map((p) => (
-            <div key={p.id} className="grid grid-cols-1 items-center gap-2 sm:grid-cols-5">
+            <div key={p.id} className="grid grid-cols-1 items-start gap-2 sm:grid-cols-5">
               <div className="col-span-2 flex items-center gap-2">
                 <Label className="text-xs w-16">Label</Label>
                 <Input
@@ -171,7 +202,7 @@ const DemoWheel = () => {
                   className="h-8"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs w-16">Weight</Label>
                 <Input
                   type="number"
@@ -179,8 +210,11 @@ const DemoWheel = () => {
                   max={20}
                   value={p.weight}
                   onChange={(e) => updatePrize(p.id, { weight: Number(e.target.value || 0) })}
-                  className="h-8 w-20"
+                  className={`h-8 w-24 ${!p.weight || p.weight < 1 ? "border-red-500" : ""}`}
                 />
+                {!p.weight || p.weight < 1 ? (
+                  <span className="text-[11px] text-red-600">Weight must be at least 1</span>
+                ) : null}
               </div>
               <div className="flex items-center gap-2">
                 <Label className="text-xs w-16">Color</Label>
@@ -202,6 +236,10 @@ const DemoWheel = () => {
               </div>
             </div>
           ))}
+          {/* Global validation hint */}
+          {prizes.length === 0 ? (
+            <p className="text-xs text-amber-600">Add at least one prize to enable spinning.</p>
+          ) : null}
         </div>
       </div>
 
