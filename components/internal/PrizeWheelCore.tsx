@@ -1,6 +1,7 @@
 "use client";
 
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { FC } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CircleDollarSign } from "lucide-react";
 import WheelContainer from "../../wheel-component/componnets/WheelContainer";
 import WheelControls from "../../wheel-component/componnets/WheelControls";
@@ -115,11 +116,11 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
   // Always provide a single generic icon node centered in each wedge
   const iconSize = Math.max(16, Math.floor((theme?.size ?? 200) * 0.12));
   const segmentIconNodes = useMemo(
-    () => segments.map(() => <CircleDollarSign size={iconSize} strokeWidth={2} />),
+    () => segments.map((s, i) => <CircleDollarSign key={`${s}-${i}`} size={iconSize} strokeWidth={2} />),
     [segments, iconSize],
   );
   const anyIcons = useMemo(() => segmentIconNodes.some(Boolean) || segmentIcons.some(Boolean), [segmentIconNodes, segmentIcons]);
-  const segmentColors = useMemo(() => segmentPrizes.map((p, i) => p.color ?? (i % 2 === 0 ? "#6d28d9" : "#8b5cf6")), [segmentPrizes]);
+  const segmentColors = useMemo(() => segmentPrizes.map((p, i) => p.color ?? (i % 2 === 0 ? "hsl(var(--primary))" : "hsl(var(--secondary))")), [segmentPrizes]);
 
   const triggerSpin = useCallback(() => {
     if (disabled || isLocked || busy || segments.length === 0) return;
@@ -186,8 +187,8 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
   }, [disabled, isLocked, busy, segments.length]);
 
   return (
-    <div className={"flex flex-col items-center gap-3 " + (className || "")}>
-      <WheelCountdown message={isLocked && countdown ? "Available in " + countdown : null} />
+    <div className={`flex flex-col items-center gap-3 ${className || ""}`}>
+      <WheelCountdown message={isLocked && countdown ? `Available in ${countdown}` : null} />
       <WheelContainer ariaLabel={ariaLabel} dim={disabled || isLocked || busy}>
         <SimpleWheel
           ref={wheelRef}
@@ -225,7 +226,13 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
 
       {(showWheelPopup || showResultModal) && modalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setModalOpen(false)} />
+          <div
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setModalOpen(false)}
+            onKeyDown={(e) => e.key === "Enter" && setModalOpen(false)}
+            role="button"
+            tabIndex={0}
+          />
           <div className="relative z-10 rounded-lg border border-border bg-card p-4 shadow-xl">
             {showWheelPopup ? (
               <div className="flex flex-col items-center gap-3">
@@ -246,21 +253,21 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
                   hideList={anyIcons}
                 />
                 {modalResult ? (
-                  <div className="text-sm text-center mt-1">
+                  <div className="mt-1 text-center text-sm">
                     <span>You won: </span>
                     <strong>{modalResult.label}</strong>
                   </div>
                 ) : null}
                 <div className="flex justify-end w-full">
-                  <button type="button" className="px-3 py-1 rounded border border-border bg-card" onClick={() => setModalOpen(false)}>
+                  <button type="button" className="px-3 py-1 rounded border border-border bg-card text-card-foreground" onClick={() => setModalOpen(false)}>
                     Close
                   </button>
                 </div>
               </div>
             ) : (
               <div className="w-[340px]">
-                <h3 className="text-lg font-semibold mb-2">You won!</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="mb-2 text-lg font-semibold">You won!</h3>
+                <p className="mb-4 text-sm text-muted-foreground">
                   {modalResult ? (
                     <span>
                       Prize: <strong>{modalResult.label}</strong>
@@ -272,7 +279,7 @@ export const PrizeWheelCore: FC<PrizeWheelProps> = ({
                   )}
                 </p>
                 <div className="flex justify-end gap-2">
-                  <button type="button" className="px-3 py-1 rounded border border-border bg-card" onClick={() => setModalOpen(false)}>
+                  <button type="button" className="px-3 py-1 rounded border border-border bg-card text-card-foreground" onClick={() => setModalOpen(false)}>
                     Close
                   </button>
                 </div>
