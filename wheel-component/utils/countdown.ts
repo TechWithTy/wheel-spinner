@@ -8,7 +8,9 @@ export function nextEligibleAt(last: string | null, cadence: Cadence): number {
 
 export function formatCountdown(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
   const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
   return `${pad(h)}:${pad(m)}:${pad(sec)}`;
 }
